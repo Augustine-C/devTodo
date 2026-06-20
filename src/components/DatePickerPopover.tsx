@@ -6,6 +6,7 @@ import {
   eachDayOfInterval, isSameDay, isToday, isSameMonth, addMonths,
 } from "date-fns";
 import { cn } from "../lib/utils";
+import { useT, useDateLocale } from "../i18n";
 
 interface DatePickerPopoverProps {
   value: Date;
@@ -16,6 +17,8 @@ interface DatePickerPopoverProps {
 export function DatePickerPopover({ value, onChange, trigger }: DatePickerPopoverProps) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => startOfMonth(value));
+  const t = useT();
+  const dateLocale = useDateLocale();
 
   const days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(month), { weekStartsOn: 1 }),
@@ -48,7 +51,7 @@ export function DatePickerPopover({ value, onChange, trigger }: DatePickerPopove
               onClick={() => setMonth(startOfMonth(new Date()))}
               className="text-xs font-semibold text-gray-700 hover:text-blue-600 transition-colors px-2"
             >
-              {format(month, "MMMM yyyy")}
+              {format(month, "MMMM yyyy", { locale: dateLocale })}
             </button>
             <button
               onClick={() => setMonth((m) => addMonths(m, 1))}
@@ -60,7 +63,7 @@ export function DatePickerPopover({ value, onChange, trigger }: DatePickerPopove
 
           {/* Day of week headers */}
           <div className="grid grid-cols-7 mb-1">
-            {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+            {t.weekdays.map((d, i) => (
               <div key={i} className="text-center text-xs text-gray-400 py-1 font-medium">{d}</div>
             ))}
           </div>
@@ -95,7 +98,7 @@ export function DatePickerPopover({ value, onChange, trigger }: DatePickerPopove
               onClick={() => select(new Date())}
               className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
             >
-              Jump to today
+              {t.jumpToToday}
             </button>
           </div>
         </Popover.Content>

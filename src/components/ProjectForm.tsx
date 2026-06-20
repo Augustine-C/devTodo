@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "./ui/Dialog";
 import { useStore } from "../store";
+import { useT } from "../i18n";
 import { PROJECT_COLORS, cn } from "../lib/utils";
 import type { Project } from "../types";
 
@@ -12,6 +13,7 @@ interface ProjectFormProps {
 
 export function ProjectForm({ open, project, onClose }: ProjectFormProps) {
   const { addProject, editProject } = useStore();
+  const t = useT();
   const [name, setName] = useState("");
   const [color, setColor] = useState(PROJECT_COLORS[5]);
   const [description, setDescription] = useState("");
@@ -43,23 +45,23 @@ export function ProjectForm({ open, project, onClose }: ProjectFormProps) {
     <Dialog
       open={open}
       onOpenChange={(v) => !v && onClose()}
-      title={project ? "Edit project" : "New project"}
+      title={project ? t.editProject : t.newProject}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">{t.name}</label>
           <input
             autoFocus
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Project name"
+            placeholder={t.projectNamePlaceholder}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-2">Color</label>
+          <label className="block text-xs font-medium text-gray-500 mb-2">{t.color}</label>
           <div className="flex flex-wrap gap-2">
             {PROJECT_COLORS.map((c) => (
               <button
@@ -77,12 +79,12 @@ export function ProjectForm({ open, project, onClose }: ProjectFormProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Description (optional)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">{t.descriptionOptional}</label>
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Short description"
+            placeholder={t.shortDescriptionPlaceholder}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
           />
         </div>
@@ -93,14 +95,14 @@ export function ProjectForm({ open, project, onClose }: ProjectFormProps) {
             onClick={onClose}
             className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="submit"
             disabled={!name.trim()}
             className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40"
           >
-            {project ? "Save" : "Create"}
+            {project ? t.save : t.create}
           </button>
         </div>
       </form>

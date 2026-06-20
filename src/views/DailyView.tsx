@@ -2,10 +2,13 @@ import { Plus } from "lucide-react";
 import { format, isToday, startOfDay } from "date-fns";
 import { TaskCard } from "../components/TaskCard";
 import { useStore } from "../store";
+import { useT, useDateLocale } from "../i18n";
 import type { Task } from "../types";
 
 export function DailyView() {
   const { tasks, completedTasks, currentDate, selectedProjectId, selectedCategoryId, openTaskForm } = useStore();
+  const t = useT();
+  const dateLocale = useDateLocale();
 
   const dayStart = startOfDay(currentDate);
   const dayStartMs = dayStart.getTime();
@@ -28,19 +31,18 @@ export function DailyView() {
   );
   const noDate = filtered.filter((t) => t.due_date === null);
 
-  // Group upcoming tasks by date
-  const upcomingByDate = upcoming.reduce<{ date: number; tasks: Task[] }[]>((acc, t) => {
-    const d = startOfDay(new Date(t.due_date!)).getTime();
+  const upcomingByDate = upcoming.reduce<{ date: number; tasks: Task[] }[]>((acc, task) => {
+    const d = startOfDay(new Date(task.due_date!)).getTime();
     const group = acc.find((g) => g.date === d);
-    if (group) group.tasks.push(t);
-    else acc.push({ date: d, tasks: [t] });
+    if (group) group.tasks.push(task);
+    else acc.push({ date: d, tasks: [task] });
     return acc;
   }, []);
 
-  const doneToday = completedTasks.filter((t) => {
-    if (selectedProjectId && t.project_id !== selectedProjectId) return false;
-    if (selectedCategoryId && t.category_id !== selectedCategoryId) return false;
-    return t.completed_at !== null && t.completed_at >= dayStartMs && t.completed_at < dayEndMs;
+  const doneToday = completedTasks.filter((task) => {
+    if (selectedProjectId && task.project_id !== selectedProjectId) return false;
+    if (selectedCategoryId && task.category_id !== selectedCategoryId) return false;
+    return task.completed_at !== null && task.completed_at >= dayStartMs && task.completed_at < dayEndMs;
   });
 
   const isCurrentToday = isToday(currentDate);
@@ -51,52 +53,52 @@ export function DailyView() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              {isCurrentToday ? "Today" : format(currentDate, "EEEE")}
+              {isCurrentToday ? t.todayBtn : format(currentDate, "EEEE", { locale: dateLocale })}
             </h2>
-            <p className="text-sm text-gray-400">{format(currentDate, "MMMM d, yyyy")}</p>
+            <p className="text-sm text-gray-400">{format(currentDate, "MMMM d, yyyy", { locale: dateLocale })}</p>
           </div>
           <button
             onClick={() => openTaskForm(undefined, dayStartMs)}
             className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
-            <Plus size={14} /> Add task
+            <Plus size={14} /> {t.addTaskBtn}
           </button>
         </div>
 
-        {/* Today's tasks — always at the top */}
+        {/* Today's tasks */}
         <Section
-          label={isCurrentToday ? "Due today" : `Due ${format(currentDate, "MMM d")}`}
-          empty="No tasks due today"
+          label={isCurrentToday ? t.dueToday : `${t.dueDateFmt} ${format(currentDate, "MMM d", { locale: dateLocale })}`}
+          empty={t.noTasksDueToday}
           highlight
         >
-          {todayTasks.map((t) => <TaskCard key={t.id} task={t} />)}
+          {todayTasks.map((task) => <TaskCard key={task.id} task={task} />)}
         </Section>
 
-        {/* Overdue — accumulated past items */}
+        {/* Overdue */}
         {overdue.length > 0 && (
-          <Section label={`Overdue · ${overdue.length}`} labelClass="text-red-500">
-            {overdue.map((t) => <TaskCard key={t.id} task={t} showDate />)}
+          <Section label={t.overdueLabel(overdue.length)} labelClass="text-red-500">
+            {overdue.map((task) => <TaskCard key={task.id} task={task} showDate />)}
           </Section>
         )}
 
-        {/* Upcoming — grouped by day */}
+        {/* Upcoming grouped by day */}
         {upcomingByDate.map(({ date, tasks: group }) => (
-          <Section key={date} label={format(new Date(date), "EEE, MMM d")}>
-            {group.map((t) => <TaskCard key={t.id} task={t} />)}
+          <Section key={date} label={format(new Date(date), "EEE, MMM d", { locale: dateLocale })}>
+            {group.map((task) => <TaskCard key={task.id} task={task} />)}
           </Section>
         ))}
 
-        {/* Backlog — no due date */}
+        {/* No due date */}
         {noDate.length > 0 && (
-          <Section label="No due date">
-            {noDate.map((t) => <TaskCard key={t.id} task={t} />)}
+          <Section label={t.noDate}>
+            {noDate.map((task) => <TaskCard key={task.id} task={task} />)}
           </Section>
         )}
 
         {/* Done today */}
         {doneToday.length > 0 && (
-          <Section label={`Done today · ${doneToday.length}`} labelClass="text-green-600">
-            {doneToday.map((t) => <TaskCard key={t.id} task={t} />)}
+          <Section label={t.doneTodayLabel(doneToday.length)} labelClass="text-green-600">
+            {doneToday.map((task) => <TaskCard key={task.id} task={task} />)}
           </Section>
         )}
       </div>

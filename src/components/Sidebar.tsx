@@ -2,6 +2,7 @@ import { Plus, Pencil, Trash2, LayoutList, Tag } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { cn } from "../lib/utils";
 import { useStore } from "../store";
+import { useT } from "../i18n";
 import type { Project, Category } from "../types";
 
 export function Sidebar() {
@@ -10,6 +11,7 @@ export function Sidebar() {
     setSelectedProject, setSelectedCategory,
     openProjectForm, openCategoryForm, removeProject, removeCategory,
   } = useStore();
+  const t = useT();
 
   return (
     <aside className="w-56 flex-shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col overflow-y-auto">
@@ -23,14 +25,11 @@ export function Sidebar() {
               : "text-gray-600 hover:bg-gray-100"
           )}
         >
-          <LayoutList size={15} /> All tasks
+          <LayoutList size={15} /> {t.allTasks}
         </button>
       </div>
 
-      <SidebarSection
-        label="Projects"
-        onAdd={() => openProjectForm()}
-      >
+      <SidebarSection label={t.projects} onAdd={() => openProjectForm()}>
         {projects.map((p) => (
           <SidebarProjectItem
             key={p.id}
@@ -42,14 +41,11 @@ export function Sidebar() {
           />
         ))}
         {projects.length === 0 && (
-          <p className="px-2.5 py-1.5 text-xs text-gray-400">No projects yet</p>
+          <p className="px-2.5 py-1.5 text-xs text-gray-400">{t.noProjects}</p>
         )}
       </SidebarSection>
 
-      <SidebarSection
-        label="Categories"
-        onAdd={() => openCategoryForm()}
-      >
+      <SidebarSection label={t.categories} onAdd={() => openCategoryForm()}>
         {categories.map((c) => (
           <SidebarCategoryItem
             key={c.id}
@@ -61,7 +57,7 @@ export function Sidebar() {
           />
         ))}
         {categories.length === 0 && (
-          <p className="px-2.5 py-1.5 text-xs text-gray-400">No categories yet</p>
+          <p className="px-2.5 py-1.5 text-xs text-gray-400">{t.noCategories}</p>
         )}
       </SidebarSection>
     </aside>
@@ -139,6 +135,7 @@ function SidebarItem({ label, selected, onSelect, onEdit, onDelete, icon }: {
   onDelete: () => void;
   icon?: React.ReactNode;
 }) {
+  const t = useT();
   return (
     <DropdownMenu.Root>
       <div
@@ -170,13 +167,13 @@ function SidebarItem({ label, selected, onSelect, onEdit, onDelete, icon }: {
             className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100 outline-none"
             onSelect={onEdit}
           >
-            <Pencil size={12} /> Edit
+            <Pencil size={12} /> {t.edit}
           </DropdownMenu.Item>
           <DropdownMenu.Item
             className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-red-600 hover:bg-red-50 outline-none"
             onSelect={onDelete}
           >
-            <Trash2 size={12} /> Delete
+            <Trash2 size={12} /> {t.delete}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

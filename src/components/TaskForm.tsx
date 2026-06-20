@@ -1,24 +1,26 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "./ui/Dialog";
 import { useStore } from "../store";
+import { useT } from "../i18n";
 import type { Priority, TaskStatus } from "../types";
 import { cn } from "../lib/utils";
-
-const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
-  { value: "low", label: "Low", color: "text-blue-500" },
-  { value: "medium", label: "Medium", color: "text-amber-500" },
-  { value: "high", label: "High", color: "text-red-500" },
-];
-
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-  { value: "todo", label: "To Do" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "done", label: "Done" },
-];
 
 export function TaskForm() {
   const { taskForm, closeTaskForm, addTask, editTask, projects, categories } = useStore();
   const { open, item: task } = taskForm;
+  const t = useT();
+
+  const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
+    { value: "low", label: t.low, color: "text-blue-500" },
+    { value: "medium", label: t.medium, color: "text-amber-500" },
+    { value: "high", label: t.high, color: "text-red-500" },
+  ];
+
+  const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
+    { value: "todo", label: t.todo },
+    { value: "in_progress", label: t.inProgress },
+    { value: "done", label: t.doneStatus },
+  ];
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -81,7 +83,7 @@ export function TaskForm() {
     <Dialog
       open={open}
       onOpenChange={(v) => !v && closeTaskForm()}
-      title={isEditing ? "Edit task" : "New task"}
+      title={isEditing ? t.editTask : t.newTask}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -90,7 +92,7 @@ export function TaskForm() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Task title"
+            placeholder={t.taskTitlePlaceholder}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 placeholder-gray-400"
           />
         </div>
@@ -99,7 +101,7 @@ export function TaskForm() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description (optional)"
+            placeholder={t.descriptionPlaceholder}
             rows={3}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 placeholder-gray-400 resize-none"
           />
@@ -107,13 +109,13 @@ export function TaskForm() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Project</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.project}</label>
             <select
               value={projectId}
               onChange={(e) => { setProjectId(e.target.value); setCategoryId(""); }}
               className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 bg-white"
             >
-              <option value="">No project</option>
+              <option value="">{t.noProject}</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -121,13 +123,13 @@ export function TaskForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Category</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.category}</label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 bg-white"
             >
-              <option value="">No category</option>
+              <option value="">{t.noCategory}</option>
               {filteredCategories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -137,7 +139,7 @@ export function TaskForm() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Due date</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.dueDate}</label>
             <input
               type="date"
               value={dueDate}
@@ -147,7 +149,7 @@ export function TaskForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Priority</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.priority}</label>
             <div className="flex gap-1">
               {PRIORITY_OPTIONS.map((opt) => (
                 <button
@@ -170,7 +172,7 @@ export function TaskForm() {
 
         {isEditing && (
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.status}</label>
             <div className="flex gap-1">
               {STATUS_OPTIONS.map((opt) => (
                 <button
@@ -197,14 +199,14 @@ export function TaskForm() {
             onClick={closeTaskForm}
             className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="submit"
             disabled={!title.trim()}
             className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40"
           >
-            {isEditing ? "Save" : "Add task"}
+            {isEditing ? t.save : t.addTaskBtn}
           </button>
         </div>
       </form>

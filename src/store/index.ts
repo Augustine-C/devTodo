@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Project, Category, Task, View } from "../types";
+import type { Locale } from "../i18n";
 import { generateId } from "../lib/utils";
 import * as projectsDb from "../db/projects";
 import * as categoriesDb from "../db/categories";
@@ -20,6 +21,7 @@ interface AppStore {
   selectedProjectId: string | null;
   selectedCategoryId: string | null;
   currentDate: Date;
+  locale: Locale;
 
   taskForm: FormState<Task>;
   projectForm: FormState<Project>;
@@ -27,6 +29,7 @@ interface AppStore {
 
   init: () => Promise<void>;
   setActiveView: (view: View) => void;
+  setLocale: (locale: Locale) => void;
   setSelectedProject: (id: string | null) => void;
   setSelectedCategory: (id: string | null) => void;
   navigateDate: (direction: -1 | 1) => void;
@@ -66,6 +69,7 @@ export const useStore = create<AppStore>((set, get) => ({
   selectedProjectId: null,
   selectedCategoryId: null,
   currentDate: new Date(),
+  locale: (localStorage.getItem("locale") as Locale) ?? "zh",
 
   taskForm: { open: false },
   projectForm: { open: false },
@@ -82,6 +86,11 @@ export const useStore = create<AppStore>((set, get) => ({
   },
 
   setActiveView: (activeView) => set({ activeView }),
+
+  setLocale: (locale) => {
+    localStorage.setItem("locale", locale);
+    set({ locale });
+  },
 
   setSelectedProject: (selectedProjectId) =>
     set({ selectedProjectId, selectedCategoryId: null }),

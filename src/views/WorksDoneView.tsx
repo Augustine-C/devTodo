@@ -3,18 +3,21 @@ import { format, isSameDay } from "date-fns";
 import { Search } from "lucide-react";
 import { TaskCard } from "../components/TaskCard";
 import { useStore } from "../store";
+import { useT, useDateLocale } from "../i18n";
 
 export function WorksDoneView() {
   const { completedTasks, projects, categories } = useStore();
+  const t = useT();
+  const dateLocale = useDateLocale();
   const [search, setSearch] = useState("");
   const [filterProjectId, setFilterProjectId] = useState("");
   const [filterCategoryId, setFilterCategoryId] = useState("");
 
   const filtered = useMemo(() => {
-    return completedTasks.filter((t) => {
-      if (filterProjectId && t.project_id !== filterProjectId) return false;
-      if (filterCategoryId && t.category_id !== filterCategoryId) return false;
-      if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
+    return completedTasks.filter((task) => {
+      if (filterProjectId && task.project_id !== filterProjectId) return false;
+      if (filterCategoryId && task.category_id !== filterCategoryId) return false;
+      if (search && !task.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
   }, [completedTasks, filterProjectId, filterCategoryId, search]);
@@ -41,8 +44,8 @@ export function WorksDoneView() {
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-2xl mx-auto px-6 py-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-gray-900">Works Done</h2>
-          <span className="text-sm text-gray-400">{completedTasks.length} completed</span>
+          <h2 className="text-lg font-semibold text-gray-900">{t.worksDone}</h2>
+          <span className="text-sm text-gray-400">{t.completedCount(completedTasks.length)}</span>
         </div>
 
         <div className="flex gap-2 mb-5">
@@ -52,7 +55,7 @@ export function WorksDoneView() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search completed tasks…"
+              placeholder={t.searchPlaceholder}
               className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
             />
           </div>
@@ -61,7 +64,7 @@ export function WorksDoneView() {
             onChange={(e) => { setFilterProjectId(e.target.value); setFilterCategoryId(""); }}
             className="text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white text-gray-600"
           >
-            <option value="">All projects</option>
+            <option value="">{t.allProjects}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -71,7 +74,7 @@ export function WorksDoneView() {
             onChange={(e) => setFilterCategoryId(e.target.value)}
             className="text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white text-gray-600"
           >
-            <option value="">All categories</option>
+            <option value="">{t.allCategories}</option>
             {filteredCategories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -80,16 +83,16 @@ export function WorksDoneView() {
 
         {grouped.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
-            <p className="text-sm">No completed tasks yet</p>
+            <p className="text-sm">{t.noCompletedTasks}</p>
           </div>
         ) : (
           grouped.map(({ date, tasks }) => (
             <div key={date.toISOString()} className="mb-6">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                {format(date, "EEEE, MMMM d, yyyy")}
+                {format(date, "EEEE, MMMM d, yyyy", { locale: dateLocale })}
               </h3>
               <div className="rounded-xl border border-gray-100 bg-white overflow-hidden divide-y divide-gray-50">
-                {tasks.map((t) => <TaskCard key={t.id} task={t} showDate />)}
+                {tasks.map((task) => <TaskCard key={task.id} task={task} showDate />)}
               </div>
             </div>
           ))

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "./ui/Dialog";
 import { useStore } from "../store";
+import { useT } from "../i18n";
 import { PROJECT_COLORS, cn } from "../lib/utils";
 import type { Category } from "../types";
 
@@ -12,6 +13,7 @@ interface CategoryFormProps {
 
 export function CategoryForm({ open, category, onClose }: CategoryFormProps) {
   const { addCategory, editCategory, projects } = useStore();
+  const t = useT();
   const [name, setName] = useState("");
   const [color, setColor] = useState(PROJECT_COLORS[6]);
   const [projectId, setProjectId] = useState("");
@@ -43,23 +45,23 @@ export function CategoryForm({ open, category, onClose }: CategoryFormProps) {
     <Dialog
       open={open}
       onOpenChange={(v) => !v && onClose()}
-      title={category ? "Edit category" : "New category"}
+      title={category ? t.editCategory : t.newCategory}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">{t.name}</label>
           <input
             autoFocus
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Category name"
+            placeholder={t.categoryNamePlaceholder}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-2">Color</label>
+          <label className="block text-xs font-medium text-gray-500 mb-2">{t.color}</label>
           <div className="flex flex-wrap gap-2">
             {PROJECT_COLORS.map((c) => (
               <button
@@ -77,13 +79,13 @@ export function CategoryForm({ open, category, onClose }: CategoryFormProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Project (optional)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">{t.projectOptional}</label>
           <select
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
             className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 bg-white"
           >
-            <option value="">All projects</option>
+            <option value="">{t.allProjects}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -96,14 +98,14 @@ export function CategoryForm({ open, category, onClose }: CategoryFormProps) {
             onClick={onClose}
             className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="submit"
             disabled={!name.trim()}
             className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40"
           >
-            {category ? "Save" : "Create"}
+            {category ? t.save : t.create}
           </button>
         </div>
       </form>

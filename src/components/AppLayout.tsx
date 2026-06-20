@@ -2,6 +2,8 @@ import { ChevronLeft, ChevronRight, Calendar, LayoutDashboard, CalendarDays, Che
 import { format } from "date-fns";
 import { cn } from "../lib/utils";
 import { useStore } from "../store";
+import { useT, useDateLocale } from "../i18n";
+import type { Locale } from "../i18n";
 import { Sidebar } from "./Sidebar";
 import { DailyView } from "../views/DailyView";
 import { WeeklyView } from "../views/WeeklyView";
@@ -13,29 +15,35 @@ import { CategoryForm } from "./CategoryForm";
 import { DatePickerPopover } from "./DatePickerPopover";
 import type { View } from "../types";
 
-const VIEWS: { id: View; label: string; icon: React.ReactNode }[] = [
-  { id: "daily", label: "Daily", icon: <Calendar size={14} /> },
-  { id: "weekly", label: "Weekly", icon: <LayoutDashboard size={14} /> },
-  { id: "monthly", label: "Monthly", icon: <CalendarDays size={14} /> },
-  { id: "done", label: "Done", icon: <CheckCircle2 size={14} /> },
-];
-
-function ViewLabel(currentDate: Date, view: View): string {
-  if (view === "daily") return format(currentDate, "MMM d");
-  if (view === "weekly") return format(currentDate, "'Week of' MMM d");
-  if (view === "monthly") return format(currentDate, "MMMM yyyy");
-  return "";
-}
-
 export function AppLayout() {
   const {
     activeView, currentDate, navigateDate, goToToday, setCurrentDate,
-    setActiveView, openTaskForm,
+    setActiveView, openTaskForm, locale, setLocale,
     projectForm, closeProjectForm,
     categoryForm, closeCategoryForm,
   } = useStore();
+  const t = useT();
+  const dateLocale = useDateLocale();
+
+  const VIEWS: { id: View; label: string; icon: React.ReactNode }[] = [
+    { id: "daily", label: t.daily, icon: <Calendar size={14} /> },
+    { id: "weekly", label: t.weekly, icon: <LayoutDashboard size={14} /> },
+    { id: "monthly", label: t.monthly, icon: <CalendarDays size={14} /> },
+    { id: "done", label: t.done, icon: <CheckCircle2 size={14} /> },
+  ];
+
+  function viewLabel(view: View): string {
+    if (view === "daily") return format(currentDate, "MMM d", { locale: dateLocale });
+    if (view === "weekly") {
+      if (locale === "zh") return format(currentDate, "M月d日", { locale: dateLocale });
+      return format(currentDate, "'Week of' MMM d", { locale: dateLocale });
+    }
+    if (view === "monthly") return format(currentDate, "MMMM yyyy", { locale: dateLocale });
+    return "";
+  }
 
   const showNav = activeView !== "done";
+  const otherLocale: Locale = locale === "zh" ? "en" : "zh";
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -58,13 +66,13 @@ export function AppLayout() {
                     onChange={setCurrentDate}
                     trigger={
                       <button className="text-xs text-gray-500 w-28 text-center px-1 py-1 rounded hover:bg-gray-100 transition-colors">
-                        {ViewLabel(currentDate, activeView)}
+                        {viewLabel(activeView)}
                       </button>
                     }
                   />
                 ) : (
                   <span className="text-xs text-gray-500 w-28 text-center">
-                    {ViewLabel(currentDate, activeView)}
+                    {viewLabel(activeView)}
                   </span>
                 )}
                 <button
@@ -78,13 +86,20 @@ export function AppLayout() {
                 onClick={goToToday}
                 className="text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
               >
-                Today
+                {t.todayBtn}
               </button>
             </>
           )}
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLocale(otherLocale)}
+            className="text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+          >
+            {otherLocale === "zh" ? "中文" : "EN"}
+          </button>
+
           <nav className="flex items-center bg-gray-100 rounded-lg p-0.5">
             {VIEWS.map((v) => (
               <button
@@ -107,7 +122,7 @@ export function AppLayout() {
             onClick={() => openTaskForm()}
             className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors"
           >
-            <Plus size={12} /> Task
+            <Plus size={12} /> {t.addTask}
           </button>
         </div>
       </header>

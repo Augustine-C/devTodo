@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { cn } from "../lib/utils";
 import type { Task } from "../types";
 import { useStore } from "../store";
+import { useT, useDateLocale } from "../i18n";
 
 interface TaskCardProps {
   task: Task;
@@ -18,6 +19,8 @@ const PRIORITY_DOT: Record<string, string> = {
 
 export function TaskCard({ task, showDate = false }: TaskCardProps) {
   const { projects, categories, markDone, markTodo, removeTask, openTaskForm } = useStore();
+  const t = useT();
+  const dateLocale = useDateLocale();
   const project = projects.find((p) => p.id === task.project_id);
   const category = categories.find((c) => c.id === task.category_id);
   const isDone = task.status === "done";
@@ -74,12 +77,12 @@ export function TaskCard({ task, showDate = false }: TaskCardProps) {
           {showDate && task.due_date && (
             <span className="inline-flex items-center gap-1 text-xs text-gray-400">
               <Calendar size={10} />
-              {format(new Date(task.due_date), "MMM d")}
+              {format(new Date(task.due_date), "MMM d", { locale: dateLocale })}
             </span>
           )}
           <span className="inline-flex items-center gap-1 text-xs text-gray-300">
             <Clock size={10} />
-            {format(new Date(task.created_at), "MMM d, yyyy")}
+            {format(new Date(task.created_at), "MMM d, yyyy", { locale: dateLocale })}
           </span>
         </div>
       </div>
@@ -100,13 +103,13 @@ export function TaskCard({ task, showDate = false }: TaskCardProps) {
               className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100 outline-none"
               onSelect={() => openTaskForm(task)}
             >
-              <Pencil size={13} /> Edit
+              <Pencil size={13} /> {t.taskEdit}
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-red-600 hover:bg-red-50 outline-none"
               onSelect={() => removeTask(task.id)}
             >
-              <Trash2 size={13} /> Delete
+              <Trash2 size={13} /> {t.taskDelete}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
