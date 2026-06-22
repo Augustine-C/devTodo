@@ -38,7 +38,15 @@ export function TaskForm() {
       setDescription(task.description ?? "");
       setProjectId(task.project_id ?? "");
       setCategoryId(task.category_id ?? "");
-      setDueDate(task.due_date ? new Date(task.due_date).toISOString().split("T")[0] : "");
+      if (task.due_date) {
+        const d = new Date(task.due_date);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        setDueDate(`${yyyy}-${mm}-${dd}`);
+      } else {
+        setDueDate("");
+      }
       setPriority(task.priority);
       setStatus(task.status);
     }
