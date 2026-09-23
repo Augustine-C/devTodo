@@ -9,6 +9,12 @@
 - [ ] 建立文档骨架（`agents-docs` / `plan_docs` / `test_docs`）
 - [ ] 首次 `bun install` 并跑通 `bunx tsc --noEmit` 基线
 
+## 功能（FEAT）
+
+| ID | 项 | 计划 | 状态 |
+|---|---|---|---|
+| FEAT-001 | 周视图跨天任务色块（开始→截止，泳道 + 颜色区分） | `plans/FEAT-001-weekly-multiday-bars.md` | doing |
+
 ## 阶段 1 — 正确性优先
 
 | ID | 项 | 证据 | 状态 |
@@ -24,7 +30,7 @@
 |---|---|---|---|
 | ISSUE-002 | 变更操作零错误处理 + 提交期间禁用 | `store/index.ts` 各 action | todo |
 | ISSUE-003 | `useStore` 全量订阅改 selector | 11 处裸 `useStore()` | todo |
-| ISSUE-004 | 引入迁移版本机制（`PRAGMA user_version`） | `db/migrations.ts` | todo |
+| ISSUE-004 | 引入迁移版本机制（`PRAGMA user_version`） | `db/migrations.ts` | 并入 FEAT-001 |
 | ISSUE-005 | 硬编码 `86400000` 日窗（DST 敏感） | `DailyView.tsx:15` | todo |
 
 ## 阶段 3 — 工程化
