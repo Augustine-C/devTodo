@@ -1,4 +1,18 @@
-# Logs
+# ============================================================
+# .gitignore — 仅忽略「生成物 / 本地环境 / 编辑器 / 工具产物」
+# 原则：源码、文档（agents-docs / plan_docs / test_docs）、
+#       配置、图标、Cargo.lock、package-lock.json 一律入库。
+# ============================================================
+
+# ---------- 依赖与构建产物 ----------
+node_modules
+dist
+dist-ssr
+.vite
+coverage
+*.tsbuildinfo
+
+# ---------- 日志 ----------
 logs
 *.log
 npm-debug.log*
@@ -7,24 +21,52 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# ---------- 本地环境变量（勿入库；示例文件除外）----------
+.env
+.env.*
+!.env.example
 *.local
 
-# Rust / Tauri build artifacts
+# ---------- SQLite 用户数据 ----------
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# ---------- Rust / Tauri 构建产物 ----------
+# 另有 src-tauri/.gitignore 忽略 /target/ 与 /gen/schemas
 src-tauri/target/
 
-# SQLite database (user data, not source)
-*.db
-
-# Editor directories and files
+# ---------- 编辑器 / IDE ----------
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
+*.iml
+*.code-workspace
+.fleet
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# ---------- 操作系统 ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Trashes
+.Spotlight-V100
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---------- AI / 本地工具产物（非源码）----------
+# .omo/     —— oh-my-opencode 运行态
+# .codegraph/ —— 代码图谱索引（本地缓存）
+# .opencode/ —— opencode 本地配置缓存
+.omo/
+.codegraph/
+.opencode/
