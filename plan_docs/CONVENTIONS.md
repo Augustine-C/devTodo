@@ -22,10 +22,16 @@
 - 信息格式：`<TYPE>(<scope>): <subject>`，一行标题（祈使句），必要时附正文。
 - 一次提交只做一件事，不混入无关格式化。
 
+## 包管理器与命令
+
+- **包管理器 = bun**（禁止 npm / yarn / pnpm）；锁文件为 `bun.lock`，须入库；不提交 `package-lock.json`。
+- 命令统一 `bun run <script>` / `bunx <bin>`（见 `agents-docs/AGENTS.md`「命令」）。
+- 系统环境要求见 `plan_docs/ENVIRONMENT.md`。
+
 ## 代码
 
 - 遵循 `agents-docs/AGENTS.md` 的「约定」与「禁忌」。
-- `npx tsc --noEmit` 为**唯一**自动正确性门禁（当前无自动化测试）。
+- `bunx tsc --noEmit` 为**唯一**自动正确性门禁（当前无自动化测试）。
 - 禁止 `as any` / `@ts-ignore` 掩盖类型错误。
 - 业务逻辑只写在前端 TypeScript；Rust 侧仅做插件注册。
 

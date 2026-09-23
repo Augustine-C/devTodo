@@ -98,10 +98,10 @@ devTodo/
 ## 命令
 
 ```bash
-npm run tauri dev     # 开发（Tauri 窗口 + HMR）
-npx tsc --noEmit      # 类型检查（唯一正确性门禁）
-npm run dev           # 纯前端开发
-npm run tauri build   # 生产构建
+bun run tauri dev     # 开发（Tauri 窗口 + HMR）
+bunx tsc --noEmit     # 类型检查（唯一正确性门禁）
+bun run dev           # 纯前端开发
+bun run tauri build   # 生产构建
 ```
 
 ## 注意事项

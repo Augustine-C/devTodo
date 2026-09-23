@@ -4,17 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All commands require Node and Cargo in PATH:
-```
-export PATH="/opt/homebrew/opt/node@26/bin:$HOME/.cargo/bin:$PATH"
-```
+Package manager is **bun** (never npm/yarn/pnpm); install deps with `bun install`.
+Rust toolchain comes from rustup (`cargo`); on Windows it lives in `%USERPROFILE%\.cargo\bin`.
 
 | Task | Command |
 |---|---|
-| Dev (Tauri window + HMR) | `npm run tauri dev` |
-| Type-check | `npx tsc --noEmit` |
-| Frontend-only dev | `npm run dev` |
-| Production build | `npm run tauri build` |
+| Dev (Tauri window + HMR) | `bun run tauri dev` |
+| Type-check | `bunx tsc --noEmit` |
+| Frontend-only dev | `bun run dev` |
+| Production build | `bun run tauri build` |
 
 There are no automated tests. Type-checking (`tsc --noEmit`) is the primary correctness gate.
 
@@ -61,4 +59,4 @@ macOS: `~/Library/Application Support/com.augustine.todo-tauri/devtodo.db`
 1. Add the Rust crate to `src-tauri/Cargo.toml`
 2. Register it in `src-tauri/src/lib.rs` with `.plugin(...)`
 3. Add the required `plugin-name:allow-*` entries to `src-tauri/capabilities/default.json`
-4. Install the npm package (`@tauri-apps/plugin-<name>`)
+4. Install the corresponding package (`@tauri-apps/plugin-<name>`) with `bun add`

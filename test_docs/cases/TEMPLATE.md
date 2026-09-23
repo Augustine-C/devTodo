@@ -2,7 +2,7 @@
 
 - **计划**：plan_docs/plans/<同名>.md
 - **状态**：未验证（`未验证` / `通过` / `失败`）
-- **环境**：Tauri dev（`npm run tauri dev`）· 日期 YYYY-MM-DD
+- **环境**：Tauri dev（`bun run tauri dev`）· 日期 YYYY-MM-DD
 
 ## 前置条件
 

@@ -4,8 +4,8 @@
 
 ## 启动
 
-- [ ] `npm run tauri dev` 正常打开，不卡 “Loading...”
-- [ ] `npx tsc --noEmit` 无错误
+- [ ] `bun run tauri dev` 正常打开，不卡 “Loading...”
+- [ ] `bunx tsc --noEmit` 无错误
 
 ## 核心流程
 

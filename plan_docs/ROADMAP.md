@@ -7,7 +7,7 @@
 
 - [ ] 建立分支模型（`dev_cbu` / `dev_cbu_develop`）
 - [ ] 建立文档骨架（`agents-docs` / `plan_docs` / `test_docs`）
-- [ ] 首次 `npm install` 并跑通 `npx tsc --noEmit` 基线
+- [ ] 首次 `bun install` 并跑通 `bunx tsc --noEmit` 基线
 
 ## 阶段 1 — 正确性优先
 

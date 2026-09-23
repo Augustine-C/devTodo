@@ -1,7 +1,7 @@
 # test_docs — 验证文档
 
 > 用途：记录**每个 Feature / issue / bug 如何验证**。与 `plan_docs/` 一一对应。
-> 现状：**无自动化测试**，`npx tsc --noEmit` 是唯一门禁；验证以**手动步骤 + 预期结果**为主（见 `TEST_STRATEGY.md`）。
+> 现状：**无自动化测试**，`bunx tsc --noEmit` 是唯一门禁；验证以**手动步骤 + 预期结果**为主（见 `TEST_STRATEGY.md`）。
 
 ## 目录结构
 

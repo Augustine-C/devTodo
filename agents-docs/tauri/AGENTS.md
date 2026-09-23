@@ -18,7 +18,7 @@ Tauri 2 后端仅承载窗口并注册插件，**零自定义命令**；应用�
 
 ## 约定（本模块特有）
 
-- **新增插件四步**：① `Cargo.toml` 加 crate ② `lib.rs` 加 `.plugin(...)` ③ `capabilities/default.json` 加 `plugin:allow-*` ④ 安装对应 npm 包。
+- **新增插件四步**：① `Cargo.toml` 加 crate ② `lib.rs` 加 `.plugin(...)` ③ `capabilities/default.json` 加 `plugin:allow-*` ④ 用 `bun add` 安装对应的 `@tauri-apps/plugin-*` 包。
 - 窗口标识 `main`；`csp: null`（无 CSP 限制）。
 
 ## 注意
