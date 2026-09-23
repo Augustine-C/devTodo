@@ -24,6 +24,7 @@ export interface Task {
   description: string | null;
   project_id: string | null;
   category_id: string | null;
+  start_date: number | null;
   due_date: number | null;
   priority: Priority;
   status: TaskStatus;

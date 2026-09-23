@@ -1,13 +1,76 @@
 import { Plus } from "lucide-react";
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday } from "date-fns";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, differenceInCalendarDays, isSameDay, isToday } from "date-fns";
 import { TaskCard } from "../components/TaskCard";
 import { useStore } from "../store";
 import { useT, useDateLocale } from "../i18n";
 import { cn } from "../lib/utils";
-import type { Task } from "../types";
+import type { Task, Project, Category } from "../types";
+
+interface BarPlacement {
+  task: Task;
+  startCol: number;
+  endCol: number;
+  lane: number;
+}
+
+function isMultiDay(task: Task): boolean {
+  return task.start_date !== null && task.due_date !== null && task.start_date < task.due_date;
+}
+
+function packBars(
+  tasks: Task[],
+  weekStart: Date,
+  weekEnd: Date
+): { placements: BarPlacement[]; laneCount: number } {
+  const bars: { task: Task; startCol: number; endCol: number }[] = [];
+  for (const task of tasks) {
+    if (!isMultiDay(task)) continue;
+    const startDate = new Date(task.start_date!);
+    const endDate = new Date(task.due_date!);
+    if (endDate < weekStart || startDate > weekEnd) continue;
+    const startCol = Math.max(0, differenceInCalendarDays(startDate, weekStart));
+    const endCol = Math.min(6, differenceInCalendarDays(endDate, weekStart));
+    bars.push({ task, startCol, endCol });
+  }
+  bars.sort((a, b) => a.startCol - b.startCol || a.endCol - b.endCol);
+
+  const lanes: { startCol: number; endCol: number }[][] = [];
+  const placements: BarPlacement[] = [];
+  for (const bar of bars) {
+    let placed = false;
+    for (let i = 0; i < lanes.length; i++) {
+      const overlaps = lanes[i].some(
+        (p) => bar.startCol <= p.endCol && bar.endCol >= p.startCol
+      );
+      if (!overlaps) {
+        lanes[i].push({ startCol: bar.startCol, endCol: bar.endCol });
+        placements.push({ task: bar.task, startCol: bar.startCol, endCol: bar.endCol, lane: i });
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      lanes.push([{ startCol: bar.startCol, endCol: bar.endCol }]);
+      placements.push({ task: bar.task, startCol: bar.startCol, endCol: bar.endCol, lane: lanes.length - 1 });
+    }
+  }
+  return { placements, laneCount: lanes.length };
+}
+
+function getBarColor(task: Task, projects: Project[], categories: Category[]): string {
+  if (task.project_id) {
+    const project = projects.find((p) => p.id === task.project_id);
+    if (project) return project.color;
+  }
+  if (task.category_id) {
+    const category = categories.find((c) => c.id === task.category_id);
+    if (category) return category.color;
+  }
+  return "#6b7280";
+}
 
 export function WeeklyView() {
-  const { tasks, currentDate, selectedProjectId, selectedCategoryId, openTaskForm } = useStore();
+  const { tasks, currentDate, selectedProjectId, selectedCategoryId, openTaskForm, projects, categories } = useStore();
   const t = useT();
   const dateLocale = useDateLocale();
 
@@ -21,6 +84,8 @@ export function WeeklyView() {
     return true;
   });
 
+  const { placements, laneCount } = packBars(filtered, weekStart, weekEnd);
+
   return (
     <div className="flex-1 overflow-x-auto overflow-y-auto">
       <div className="min-w-[700px] h-full flex flex-col px-4 py-4">
@@ -30,11 +95,48 @@ export function WeeklyView() {
             format(weekEnd, "MMM d, yyyy", { locale: dateLocale })
           )}
         </div>
+
+        {laneCount > 0 && (
+          <div
+            className="grid grid-cols-7 gap-2 mb-2"
+            style={{ gridTemplateRows: `repeat(${laneCount}, minmax(24px, auto))` }}
+          >
+            {placements.map((p) => {
+              const color = getBarColor(p.task, projects, categories);
+              const isGray = color === "#6b7280";
+              return (
+                <button
+                  key={p.task.id}
+                  onClick={() => openTaskForm(p.task)}
+                  title={p.task.title}
+                  className="truncate text-xs px-2 py-1 rounded border-l-[3px] text-left cursor-pointer hover:opacity-80 transition-opacity overflow-hidden"
+                  style={{
+                    gridColumn: `${p.startCol + 1} / ${p.endCol + 2}`,
+                    gridRow: p.lane + 1,
+                    backgroundColor: isGray ? "#f3f4f6" : color + "20",
+                    color: color,
+                    borderLeftColor: color,
+                    borderTopColor: isGray ? "#e5e7eb" : color + "40",
+                    borderRightColor: isGray ? "#e5e7eb" : color + "40",
+                    borderBottomColor: isGray ? "#e5e7eb" : color + "40",
+                    borderWidth: "1px",
+                    borderLeftWidth: "3px",
+                  }}
+                >
+                  {p.task.title}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-7 gap-2 flex-1">
           {days.map((day) => {
-            const dayTasks = filtered.filter((task) =>
-              task.due_date !== null && isSameDay(new Date(task.due_date), day)
-            );
+            const dayTasks = filtered.filter((task) => {
+              if (task.due_date === null) return false;
+              if (isMultiDay(task)) return false;
+              return isSameDay(new Date(task.due_date), day);
+            });
             return (
               <DayColumn
                 key={day.toISOString()}

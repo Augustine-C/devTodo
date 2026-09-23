@@ -18,19 +18,19 @@ export async function getCompletedTasks(): Promise<Task[]> {
 export async function createTask(t: Omit<Task, "created_at" | "completed_at">): Promise<void> {
   const db = await getDb();
   await db.execute(
-    `INSERT INTO tasks (id, title, description, project_id, category_id, due_date, priority, status, created_at, completed_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO tasks (id, title, description, project_id, category_id, start_date, due_date, priority, status, created_at, completed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [t.id, t.title, t.description ?? null, t.project_id ?? null, t.category_id ?? null,
-     t.due_date ?? null, t.priority, t.status, Date.now(), null]
+     t.start_date ?? null, t.due_date ?? null, t.priority, t.status, Date.now(), null]
   );
 }
 
 export async function updateTask(t: Task): Promise<void> {
   const db = await getDb();
   await db.execute(
-    `UPDATE tasks SET title=?, description=?, project_id=?, category_id=?, due_date=?, priority=?, status=?, completed_at=? WHERE id=?`,
+    `UPDATE tasks SET title=?, description=?, project_id=?, category_id=?, start_date=?, due_date=?, priority=?, status=?, completed_at=? WHERE id=?`,
     [t.title, t.description ?? null, t.project_id ?? null, t.category_id ?? null,
-     t.due_date ?? null, t.priority, t.status, t.completed_at ?? null, t.id]
+     t.start_date ?? null, t.due_date ?? null, t.priority, t.status, t.completed_at ?? null, t.id]
   );
 }
 

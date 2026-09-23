@@ -233,6 +233,7 @@ export const useStore = create<AppStore>((set, get) => ({
           description: null,
           project_id: null,
           category_id: null,
+          start_date: null,
           due_date: defaultDate ?? null,
           priority: "medium",
           status: "todo",

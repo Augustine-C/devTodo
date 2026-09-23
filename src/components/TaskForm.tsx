@@ -5,6 +5,15 @@ import { useT } from "../i18n";
 import type { Priority, TaskStatus } from "../types";
 import { cn } from "../lib/utils";
 
+/** 毫秒时间戳 → <input type="date"> 所需的本地 yyyy-MM-dd */
+function toDateInputValue(ms: number): string {
+  const d = new Date(ms);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 export function TaskForm() {
   const { taskForm, closeTaskForm, addTask, editTask, projects, categories } = useStore();
   const { open, item: task } = taskForm;
@@ -26,9 +35,11 @@ export function TaskForm() {
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
+  const [startDate, setStartDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [status, setStatus] = useState<TaskStatus>("todo");
+  const [error, setError] = useState<string | null>(null);
 
   const isEditing = !!task?.id;
 
@@ -38,17 +49,18 @@ export function TaskForm() {
       setDescription(task.description ?? "");
       setProjectId(task.project_id ?? "");
       setCategoryId(task.category_id ?? "");
-      if (task.due_date) {
-        const d = new Date(task.due_date);
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        setDueDate(`${yyyy}-${mm}-${dd}`);
-      } else {
-        setDueDate("");
-      }
+      // 新建：默认“开始日期 = 今天”（可改可清）；编辑：取任务现值。
+      setStartDate(
+        task.start_date
+          ? toDateInputValue(task.start_date)
+          : task.id
+            ? ""
+            : toDateInputValue(Date.now())
+      );
+      setDueDate(task.due_date ? toDateInputValue(task.due_date) : "");
       setPriority(task.priority);
       setStatus(task.status);
+      setError(null);
     }
   }, [task]);
 
@@ -60,7 +72,14 @@ export function TaskForm() {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const dueDateMs = dueDate ? new Date(dueDate + "T00:00:00").getTime() : null;
+    const startMs = startDate ? new Date(startDate + "T00:00:00").getTime() : null;
+    const dueMs = dueDate ? new Date(dueDate + "T00:00:00").getTime() : null;
+
+    if (startMs !== null && dueMs !== null && startMs > dueMs) {
+      setError(t.startAfterDue);
+      return;
+    }
+    setError(null);
 
     if (isEditing && task) {
       await editTask({
@@ -69,7 +88,8 @@ export function TaskForm() {
         description: description.trim() || null,
         project_id: projectId || null,
         category_id: categoryId || null,
-        due_date: dueDateMs,
+        start_date: startMs,
+        due_date: dueMs,
         priority,
         status,
       });
@@ -79,7 +99,8 @@ export function TaskForm() {
         description: description.trim() || null,
         project_id: projectId || null,
         category_id: categoryId || null,
-        due_date: dueDateMs,
+        start_date: startMs,
+        due_date: dueMs,
         priority,
         status,
       });
@@ -147,6 +168,16 @@ export function TaskForm() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t.startDate}</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">{t.dueDate}</label>
             <input
               type="date"
@@ -155,26 +186,28 @@ export function TaskForm() {
               className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
             />
           </div>
+        </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t.priority}</label>
-            <div className="flex gap-1">
-              {PRIORITY_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setPriority(opt.value)}
-                  className={cn(
-                    "flex-1 text-xs py-2 rounded-lg border transition-colors font-medium",
-                    priority === opt.value
-                      ? "border-gray-300 bg-gray-100 text-gray-800"
-                      : "border-gray-200 text-gray-400 hover:border-gray-300"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+        {error && <p className="text-xs text-red-500">{error}</p>}
+
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">{t.priority}</label>
+          <div className="flex gap-1">
+            {PRIORITY_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setPriority(opt.value)}
+                className={cn(
+                  "flex-1 text-xs py-2 rounded-lg border transition-colors font-medium",
+                  priority === opt.value
+                    ? "border-gray-300 bg-gray-100 text-gray-800"
+                    : "border-gray-200 text-gray-400 hover:border-gray-300"
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
 
